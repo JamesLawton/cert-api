@@ -1,0 +1,36 @@
+version: '2.2'
+services:
+  cert_tools_api:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
+    working_dir: /app/cert_tools
+    command: bash -c "pip install -r requirements.txt && /start-reload.sh"
+    container_name: cert_tools_api
+    cpus: 1
+    mem_limit: 512000000
+    memswap_limit: 512000000
+    mem_swappiness: 0
+    user: "0:0"
+    volumes:
+      - ./app/cert_tools_api.py:/app/main.py
+      - ../cert-tools:/app/cert_tools
+    ports:
+       - 7000:80
+    #restart: unless-stopped
+
+  cert_issuer_api:
+    image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
+    volumes:
+      - ./app/cert_issuer_api.py:/app/main.py
+      - ../cert-issuer:/app/cert_issuer
+      - ../cert-tools/sample_data/unsigned_certificates:/app/cert_issuer/data/unsigned_certificates
+    working_dir: /app/cert_issuer
+    command: bash -c "pip3 install -r ethereum_smart_contract_requirements.txt && /start-reload.sh"
+    container_name: cert_issuer_api
+    cpus: 1
+    mem_limit: 512000000
+    memswap_limit: 512000000
+    mem_swappiness: 0
+    user: "0:0"
+    #restart: unless-stopped
+    ports:
+       - 7001:80
