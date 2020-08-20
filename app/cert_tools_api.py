@@ -31,6 +31,6 @@ def createUnsignedCertificate(batch: Batch):
     conf = create_v3_alpha_certificate_template.get_config()
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.recipient_name, batch.email)
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
-    instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey, batch.recipient_name, batch.email, batch.SHA256)
+    uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey, batch.recipient_name, batch.email, batch.SHA256)
 
-    return {"Unsigned Certificate Created!"}
+    return uidArray
