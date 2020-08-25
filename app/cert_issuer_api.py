@@ -50,10 +50,13 @@ def get_config():
 def remove_certificates():
     return
 
-def update_ipfs_link():
-
-
-    return    
+def update_ipfs_link(token_id, token_uri):
+    config = get_config()
+    certificate_batch_handler, transaction_handler, connector = \
+            ethereum_sc.instantiate_blockchain_handlers(config)
+    # calling the smart contract to update the token uri for the token id
+    cert_issuer.issue_certificates.update_token_uri(config, token_id, token_uri, transaction_handler)
+    return
 
 def add_file_ipfs(cert_json):
     #Important to put name of IPFS container
@@ -70,12 +73,16 @@ def issue(createToken: createToken, request: Request):
             #Removed File mode from ethereum_sc
             #bitcoin.instantiate_blockchain_handlers(config, False)
     certificate_batch_handler.set_certificates_in_batch(request.json)
-    cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey)
+    # delegating the issuing of the certificate to the respective transaction handler, that will call "createCertificate" on the smart contract 
+    (tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey)
 
+    # file that stores the ipfs hashes of the certificates in the batch
+    ipfs_batch_file = config.ipfs_batch_file
     #Retrieve file path of certified transaction
     blockchain_file_path = config.blockchain_certificates_dir
     #fileID = certificate_batch_handler.certificates_to_issue.popitem(last=False)[0]
     json_data = []
+    ipfs_list = []
     for fileID in certificate_batch_handler.certificates_to_issue:
         full_path_with_file = str(blockchain_file_path + '/' + fileID + '.json')
     
@@ -83,6 +90,14 @@ def issue(createToken: createToken, request: Request):
             d = json.load(f)
         #Save JSON Certificate to IPFS
         ipfsHash = add_file_ipfs(d)
+        ipfs_list.append('http://ipfs.io/ipfs/' + ipfsHash)
         json_data.append(d)
-    return json_data
 
+    # write ipfs hash list into the ipfs batch file
+    with open(ipfs_batch_file, w) as file:
+        json.dump(ipfs_list, file)
+
+    ipfs_batch_hash = add_file_ipfs(ipfs_batch_file)
+    update_ipfs_link(token_id, 'http://ipfs.io/ipfs/' + ipfs_batch_hash)
+
+    return json_data
