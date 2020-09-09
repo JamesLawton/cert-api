@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="b1ac61f1-92d2-42a3-9749-f0ab40feb902" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/app/cert_issuer_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_issuer_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/cert_tools_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_tools_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/certify-api.yml" beforeDir="false" afterPath="$PROJECT_DIR$/certify-api.yml" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="JupyterTrust" id="c8a63400-da69-464c-a75b-95f42b089891" />
+  <component name="ProjectId" id="1hEIR5ncaPhuRXqbTNiHu0hHFOu" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../cert-issuer" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="b1ac61f1-92d2-42a3-9749-f0ab40feb902" name="Default Changelist" comment="" />
+      <created>1599569814344</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1599569814344</updated>
+      <workItem from="1599569815677" duration="85000" />
+      <workItem from="1599569928611" duration="411000" />
+      <workItem from="1599570368876" duration="855000" />
+      <workItem from="1599571269120" duration="8893000" />
+      <workItem from="1599636140293" duration="599000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="706" y="378" width="570" height="357" key="#Notifications" timestamp="1599569896084">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="706" y="378" width="570" height="357" key="#Notifications/72.27.1848.1053@72.27.1848.1053" timestamp="1599569896084" />
+    <state x="1010" y="327" width="424" height="491" key="FileChooserDialogImpl" timestamp="1599574615849">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="1010" y="327" width="424" height="491" key="FileChooserDialogImpl/72.27.1848.1053@72.27.1848.1053" timestamp="1599574615849" />
+  </component>
+</project>

@@ -36,7 +36,7 @@ services:
        - 7001:80
 
   ipfs:
-    image: ipfs/go-ipfs:latest
+    image: ipfs/go-ipfs:v0.6.0
     environment:
     #  - IPFS_PROFILE=server
       - IPFS_PATH=/ipfsdata

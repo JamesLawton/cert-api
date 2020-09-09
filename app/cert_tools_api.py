@@ -12,12 +12,13 @@ import requests
 app = FastAPI()
 
 
-##Testing Post Request
+
 class Batch(BaseModel):
     publicKey: str
     recipient_name: Optional[str]
     email: Optional[str]
     SHA256: List[str]
+    enableIPFS: bool
 
     class Config:
         schema_extra = {
@@ -26,13 +27,15 @@ class Batch(BaseModel):
                 "recipient_name": "Albert Einstein",
                 "email": "einstein@mpg.de",
                 "SHA256": ["0x0e4ded5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6", "0xfda3124d5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6"],
+                "enableIPFS": True
             }
         }
 
 ##Full Workflow
-
 @app.post("/createBloxbergCertificate")
 async def createBloxbergCertificate(batch: Batch):
+    if len(batch.SHA256) >= 1001:
+        raise HTTPException(status_code=400, detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
     #create_v3_alpha_certificate_template(recipient_name, email)
     conf = create_v3_alpha_certificate_template.get_config()
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.recipient_name, batch.email)
@@ -41,16 +44,23 @@ async def createBloxbergCertificate(batch: Batch):
 
     url = "http://cert_issuer_api:80/issueBloxbergCertificate"
     
-    payload = {"recipientPublickey": batch.publicKey, "unSignedCerts": uidArray}
+    payload = {"recipientPublickey": batch.publicKey, "unSignedCerts": uidArray, "enableIPFS": batch.enableIPFS }
     headers = {
   'Content-Type': 'application/json'
 }
     payload = json.dumps(payload)
 
     # TODO: Currently a simple post request, but need to research message queues for microservices
-    response = requests.request("POST", url, headers=headers, data = payload)
-    encodedResponse = response.text.encode('utf8')
-    jsonText = json.loads(encodedResponse)
+    try:
+        response = requests.request("POST", url, headers=headers, data = payload)
+        encodedResponse = response.text.encode('utf8')
+        jsonText = json.loads(encodedResponse)
+    except:
+        print(response)
+        for x in uidArray:
+            full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
+            os.remove(full_path_with_file)
+        raise HTTPException(status_code=404, detail="Couldn't get connect to cert-issuer microservice, your files were not certified.")
 
     # TODO: Make requests Async
     #async with httpx.AsyncClient() as client:
@@ -58,7 +68,6 @@ async def createBloxbergCertificate(batch: Batch):
     #    print(r)
     for x in uidArray:
         full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
-        print(full_path_with_file)
         os.remove(full_path_with_file)        
 
     return jsonText
