@@ -57,7 +57,8 @@ async def createBloxbergCertificate(batch: Batch):
         jsonText = json.loads(encodedResponse)
         for x in uidArray:
             full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
-            os.remove(full_path_with_file)     
+            os.remove(full_path_with_file)
+
     except:
         print(response)
         for x in uidArray:
@@ -69,9 +70,7 @@ async def createBloxbergCertificate(batch: Batch):
     #async with httpx.AsyncClient() as client:
     #    r = await client.post(url, data = obj)
     #    print(r)
-    for x in uidArray:
-        full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
-        os.remove(full_path_with_file)        
+
 
     return jsonText
 
