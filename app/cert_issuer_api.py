@@ -67,14 +67,14 @@ def add_file_ipfs(cert_path):
 
 ##Experimental IPNS - IPNS is still in Alpha so it is relatively slow.
 # TODO: Implement key rotation
-def add_file_ipns(ipfsHash, generateKey):
+def add_file_ipns(ipfsHash, generateKey, newKey = None):
     client = ipfshttpclient.connect('/dns/ipfs/tcp/5001')
     if generateKey is True:
         newKey = str(uuid.uuid1())
         client.key.gen(newKey, "rsa")["Name"]
     tempAddress = '/ipfs/' + ipfsHash
     ipnshash = client.name.publish(tempAddress, key=newKey, timeout=300)
-    return ipnshash
+    return ipnshash, newKey
 
 #Full Workflow - Called from cert_tools_api
 @app.post("/issueBloxbergCertificate")
@@ -90,7 +90,7 @@ def issue(createToken: createToken, request: Request):
             ipfs_object =  {"file_certifications": []}
             ipfsHash = add_file_ipfs("./data/meta_certificates/.placeholder")
             generateKey = True
-            ipnsHash = add_file_ipns(ipfsHash, generateKey)
+            ipnsHash, generatedKey = add_file_ipns(ipfsHash, generateKey)
             print("Initial IPNS Commit")
             tokenURI = 'http://ipfs.io/ipns/' + ipnsHash['Name']
             print(tokenURI)
@@ -130,7 +130,7 @@ def issue(createToken: createToken, request: Request):
                 json.dump(ipfs_object, file)
             ipfs_batch_hash = add_file_ipfs(ipfs_batch_file)
             generateKey = False
-            ipnsHash = add_file_ipns(ipfs_batch_hash, generateKey)
+            ipnsHash = add_file_ipns(ipfs_batch_hash, generateKey, newKey=generatedKey)
             print("Updated IPNS Hash")
             print(ipnsHash)
             #update_ipfs_link(token_id, 'http://ipfs.io/ipfs/' + ipfs_batch_hash)
