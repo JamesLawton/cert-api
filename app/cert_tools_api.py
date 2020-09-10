@@ -2,7 +2,7 @@ from typing import List, Optional
 from functools import lru_cache
 from fastapi import Depends, FastAPI
 from cert_tools import instantiate_v3_alpha_certificate_batch, create_v3_alpha_certificate_template
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import configargparse
 import os
 import httpx
@@ -14,11 +14,11 @@ app = FastAPI()
 
 
 class Batch(BaseModel):
-    publicKey: str
+    publicKey: str = Field(description='Public bloxberg address where the Research Object Certificate token will be minted')
     recipient_name: Optional[str]
     email: Optional[str]
-    SHA256: List[str]
-    enableIPFS: bool
+    SHA256: List[str] = Field(description= 'SHA256 Hashes of each file you wish to certify. One certificate will be generated per hash up to a maximum of 1000 in a single request', max_length=1000)
+    enableIPFS: bool = Field(description= 'Set to true to enable posting certificate to IPFS. If set to false, will simply return certificates in the response.')
 
     class Config:
         schema_extra = {
@@ -55,6 +55,9 @@ async def createBloxbergCertificate(batch: Batch):
         response = requests.request("POST", url, headers=headers, data = payload)
         encodedResponse = response.text.encode('utf8')
         jsonText = json.loads(encodedResponse)
+        for x in uidArray:
+            full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
+            os.remove(full_path_with_file)     
     except:
         print(response)
         for x in uidArray:
