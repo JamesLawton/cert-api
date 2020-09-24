@@ -119,7 +119,7 @@ def issue(createToken: createToken, request: Request):
         #Save JSON Certificate to IPFS
         if createToken.enableIPFS is True:
             temp = ipfs_object["file_certifications"]
-            y = {"id": fileID, "ipfsHash": 'http://ipfs.io/ipfs/' + ipfsHash, "sha256": d["SHA256Hash"]}
+            y = {"id": fileID, "ipfsHash": 'http://ipfs.io/ipfs/' + ipfsHash, "crid": d["crid"]}
             temp.append(y)
         json_data.append(d)
 
@@ -174,7 +174,7 @@ def issue(createToken: createToken, request: Request):
         #Save JSON Certificate to IPFS
         temp = ipfs_object["file_certifications"]
         #ipfs_list.append('http://ipfs.io/ipfs/' + ipfsHash)
-        y = {"id": fileID, "ipfsHash": 'http://ipfs.io/ipfs/' + ipfsHash, "sha256": d["SHA256Hash"]}
+        y = {"id": fileID, "ipfsHash": 'http://ipfs.io/ipfs/' + ipfsHash, "crid": d["cridHash"]}
         temp.append(y)
         json_data.append(d)
 
