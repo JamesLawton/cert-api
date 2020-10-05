@@ -5,7 +5,6 @@ services:
     working_dir: /app/cert_tools
     command: bash -c "pip install -r requirements.txt && /start-reload.sh"
     container_name: cert_tools_api
-    cpus: 1
     mem_limit: 512000000
     memswap_limit: 512000000
     mem_swappiness: 0
@@ -26,7 +25,6 @@ services:
     working_dir: /app/cert_issuer
     command: bash -c "pip3 install -r ethereum_smart_contract_requirements.txt && /start-reload.sh"
     container_name: cert_issuer_api
-    cpus: 1
     mem_limit: 512000000
     memswap_limit: 512000000
     mem_swappiness: 0
@@ -35,17 +33,17 @@ services:
     ports:
        - 7001:80
 
-  ipfs:
-    image: ipfs/go-ipfs:v0.6.0
-    environment:
-    #  - IPFS_PROFILE=server
-      - IPFS_PATH=/ipfsdata
-    volumes:
-      - ../ipfsdata:/ipfsdata
-    ports:
-      - "4001:4001"
-      - "8080:8080"
-      - "8081:8081"
-      - "5001:5001"
-
+# TODO: Wait for improved IPNS performance before integrating in production.
+#  ipfs:
+#    image: ipfs/go-ipfs:v0.6.0
+#    environment:
+#    #  - IPFS_PROFILE=server
+#      - IPFS_PATH=/ipfsdata
+#    volumes:
+#      - ../ipfsdata:/ipfsdata
+#    ports:
+#      - "4001:4001"
+#      - "8080:8080"
+#      - "8081:8081"
+#      - "5001:5001"
 

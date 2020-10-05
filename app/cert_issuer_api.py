@@ -1,6 +1,6 @@
 from typing import List, Optional
 from functools import lru_cache
-from fastapi import Depends, FastAPI, Request
+from fastapi import Depends, FastAPI, Request, HTTPException
 from pydantic import BaseModel
 import json
 import os
@@ -34,6 +34,7 @@ class createToken(BaseModel):
     unSignedCerts: List[str]
     enableIPFS: bool
 
+    #Used only for Testing API, not for entire workflow.
     class Config:
         schema_extra = {
             "example": {
@@ -65,7 +66,7 @@ def add_file_ipfs(cert_path):
     hash = client.add(cert_path)
     return hash['Hash']
 
-##Experimental IPNS - IPNS is still in Alpha so it is relatively slow.
+##Experimental IPNS - IPNS is still in Alpha so it is relatively slow. Not recommended for production
 # TODO: Implement key rotation
 def add_file_ipns(ipfsHash, generateKey, newKey = None):
     client = ipfshttpclient.connect('/dns/ipfs/tcp/5001')
@@ -143,8 +144,6 @@ def issue(createToken: createToken, request: Request):
 @app.post("/issueTest")
 def issue(createToken: createToken, request: Request):
     config = get_config()
-
-
 
     certificate_batch_handler, transaction_handler, connector = \
             ethereum_sc.instantiate_blockchain_handlers(config)

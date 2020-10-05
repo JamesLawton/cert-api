@@ -1,6 +1,6 @@
 from typing import List, Optional
 from functools import lru_cache
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from cert_tools import instantiate_v3_alpha_certificate_batch, create_v3_alpha_certificate_template
 from pydantic import BaseModel, Field, Json
 from urllib.error import HTTPError
@@ -18,8 +18,9 @@ class Batch(BaseModel):
     publicKey: str = Field(description='Public bloxberg address where the Research Object Certificate token will be minted')
     crid: List[str] = Field(description= 'Cryptographic Identifier of each file you wish to certify. One certificate will be generated per hash up to a maximum of 1000 in a single request', max_length=1000)
     cridType: Optional[str] = Field(description='If crid is not self-describing, provide the type of cryptographic function you used to generate the cryptographic identifier. Plesae use the name field from the multihash list to ensure compatibility: https://github.com/multiformats/multicodec/blob/master/table.csv')
-    enableIPFS: bool = Field(description= 'Set to true to enable posting certificate to IPFS. If set to false, will simply return certificates in the response.')
-    metadataJson: Optional[Json] = Field(description='Provide optional metadata to describe the research object in more detail.')
+    enableIPFS: bool = Field(description= 'EXPERIMENTAL: Set to true to enable posting certificate to IPFS. If set to false, will simply return certificates in the response. By default, this is disabled on the server due to performance and storage problems with IPFS')
+    metadataJson: Optional[Json] = Field(description='Provide optional metadata to describe the research object batch in more detail that will be included in the certificate.')
+
 
     class Config:
         schema_extra = {
@@ -35,9 +36,13 @@ class Batch(BaseModel):
 ##Full Workflow
 @app.post("/createBloxbergCertificate")
 async def createBloxbergCertificate(batch: Batch):
+    #Currently don't support IPFS due to performance and space issues.
+    if batch.enableIPFS is True:
+        raise HTTPException(status_code=400, detail="IPFS is not supported currently due to performance and storage requirements.")
+    #limit number of CRIDs to 1000
     if len(batch.crid) >= 1001:
         raise HTTPException(status_code=400, detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
-    #create_v3_alpha_certificate_template(recipient_name, email)
+
     conf = create_v3_alpha_certificate_template.get_config()
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.publicKey)
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
@@ -45,7 +50,6 @@ async def createBloxbergCertificate(batch: Batch):
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey, batch.crid, batch.metadataJson)
     else:
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey, batch.crid)
-
 
     url = "http://cert_issuer_api:80/issueBloxbergCertificate"
     
@@ -68,7 +72,7 @@ async def createBloxbergCertificate(batch: Batch):
         for x in uidArray:
             full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
             os.remove(full_path_with_file)
-        raise HTTPException(status_code=404, detail="Couldn't get connect to cert-issuer microservice, your files were not certified.")
+        raise HTTPException(status_code=404, detail=response)
 
     # TODO: Make requests Async
     #async with httpx.AsyncClient() as client:
