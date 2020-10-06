@@ -9,6 +9,8 @@ services:
     memswap_limit: 512000000
     mem_swappiness: 0
     user: "0:0"
+    environment:
+      - app=development
     volumes:
       - ./app/cert_tools_api.py:/app/main.py
       - ../cert-tools:/app/cert_tools
@@ -29,21 +31,23 @@ services:
     memswap_limit: 512000000
     mem_swappiness: 0
     user: "0:0"
+    environment:
+      - app=development
     #restart: unless-stopped
     ports:
        - 7001:80
 
 # TODO: Wait for improved IPNS performance before integrating in production.
-#  ipfs:
-#    image: ipfs/go-ipfs:v0.6.0
-#    environment:
-#    #  - IPFS_PROFILE=server
-#      - IPFS_PATH=/ipfsdata
-#    volumes:
-#      - ../ipfsdata:/ipfsdata
-#    ports:
-#      - "4001:4001"
-#      - "8080:8080"
-#      - "8081:8081"
-#      - "5001:5001"
+  ipfs:
+    image: ipfs/go-ipfs:v0.6.0
+    environment:
+    #  - IPFS_PROFILE=server
+      - IPFS_PATH=/ipfsdata
+    volumes:
+      - ../ipfsdata:/ipfsdata
+    ports:
+      - "4001:4001"
+      - "8080:8080"
+      - "8081:8081"
+      - "5001:5001"
 

@@ -43,6 +43,15 @@ async def createBloxbergCertificate(batch: Batch):
     if len(batch.crid) >= 1001:
         raise HTTPException(status_code=400, detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
 
+    python_environment = os.getenv("app")
+    if python_environment == "production":
+        full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/')
+        for file_name in listdir(full_path_with_file):
+            if file_name.endswith('.json'):
+                print(full_path_with_file + file_name)
+                os.remove(full_path_with_file + file_name)
+
+
     conf = create_v3_alpha_certificate_template.get_config()
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.publicKey)
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
@@ -72,7 +81,7 @@ async def createBloxbergCertificate(batch: Batch):
         for x in uidArray:
             full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
             os.remove(full_path_with_file)
-        raise HTTPException(status_code=404, detail=response)
+        raise HTTPException(status_code=404, detail='An error has occurred when issuing the certificate to the blockchain.')
 
     # TODO: Make requests Async
     #async with httpx.AsyncClient() as client:
