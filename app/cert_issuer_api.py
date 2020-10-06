@@ -44,7 +44,6 @@ class createToken(BaseModel):
             }
         }
 
-
 def get_config():
     global config
     if config == None:
@@ -137,6 +136,15 @@ def issue(createToken: createToken, request: Request):
             #update_ipfs_link(token_id, 'http://ipfs.io/ipfs/' + ipfs_batch_hash)
     except:
         return "Updating IPNS link failed,"
+
+
+    python_environment = os.getenv("app")
+    if python_environment == "production":
+        full_path_with_file = str(conf.blockchain_certificates_dir + '/')
+        for file_name in listdir(full_path_with_file):
+            if file_name.endswith('.json'):
+                print(full_path_with_file + file_name)
+                os.remove(full_path_with_file + file_name)
 
     return json_data
 
