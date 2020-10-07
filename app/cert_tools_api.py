@@ -56,7 +56,7 @@ async def createBloxbergCertificate(batch: Batch):
 
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.publicKey)
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
-    if batch.metadataJson is None:
+    if batch.metadataJson is not None:
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey, batch.crid, batch.metadataJson)
     else:
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey, batch.crid)

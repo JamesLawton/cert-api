@@ -10,7 +10,7 @@ services:
     mem_swappiness: 0
     user: "0:0"
     environment:
-      - app=production
+      - app=development
     volumes:
       - ./app/cert_tools_api.py:/app/main.py
       - ../cert-tools:/app/cert_tools
@@ -32,7 +32,7 @@ services:
     mem_swappiness: 0
     user: "0:0"
     environment:
-      - app=production
+      - app=development
     #restart: unless-stopped
     ports:
        - 7001:80
