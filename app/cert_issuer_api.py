@@ -137,11 +137,10 @@ def issue(createToken: createToken, request: Request):
     except:
         return "Updating IPNS link failed,"
 
-
     python_environment = os.getenv("app")
     if python_environment == "production":
-        full_path_with_file = str(conf.blockchain_certificates_dir + '/')
-        for file_name in listdir(full_path_with_file):
+        full_path_with_file = str(config.blockchain_certificates_dir + '/')
+        for file_name in os.listdir(full_path_with_file):
             if file_name.endswith('.json'):
                 print(full_path_with_file + file_name)
                 os.remove(full_path_with_file + file_name)
