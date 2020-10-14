@@ -7,6 +7,7 @@ from urllib.error import HTTPError
 import configargparse
 import os
 import httpx
+import time
 import json
 import requests
 
@@ -33,6 +34,17 @@ class Batch(BaseModel):
             }
         }
 
+async def issueRequest(url, headers, payload):
+    response = requests.request("POST", url, headers=headers, data = payload)
+    encodedResponse = response.text.encode('utf8')
+    jsonText = json.loads(encodedResponse)
+    # async with httpx.AsyncClient() as client:
+    #     response = await client.post(url, headers=headers, data=payload)
+    #     encodedResponse = await response.text.encode('utf8')
+    #     jsonText = await json.loads(encodedResponse)
+    return jsonText
+
+
 ##Full Workflow
 @app.post("/createBloxbergCertificate")
 async def createBloxbergCertificate(batch: Batch):
@@ -40,7 +52,7 @@ async def createBloxbergCertificate(batch: Batch):
     if batch.enableIPFS is True:
         raise HTTPException(status_code=400, detail="IPFS is not supported currently due to performance and storage requirements.")
     #limit number of CRIDs to 1000
-    if len(batch.crid) >= 1001:
+    if len(batch.crid) >= 101:
         raise HTTPException(status_code=400, detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
 
     conf = create_v3_alpha_certificate_template.get_config()
@@ -53,7 +65,8 @@ async def createBloxbergCertificate(batch: Batch):
                 print(full_path_with_file + file_name)
                 os.remove(full_path_with_file + file_name)
 
-
+    start = time.time()
+    print("generating unsigned certs")
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.publicKey)
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
     if batch.metadataJson is not None:
@@ -61,6 +74,8 @@ async def createBloxbergCertificate(batch: Batch):
     else:
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey, batch.crid)
 
+    end = time.time()
+    print(end - start)
     url = "http://cert_issuer_api:80/issueBloxbergCertificate"
     
     payload = {"recipientPublickey": batch.publicKey, "unSignedCerts": uidArray, "enableIPFS": batch.enableIPFS }
@@ -68,27 +83,23 @@ async def createBloxbergCertificate(batch: Batch):
   'Content-Type': 'application/json'
 }
     payload = json.dumps(payload)
-
+    start2 = time.time()
+    print('starting cert-issuance')
     # TODO: Currently a simple post request, but need to research message queues for microservices
     try:
-        response = requests.request("POST", url, headers=headers, data = payload)
-        encodedResponse = response.text.encode('utf8')
-        jsonText = json.loads(encodedResponse)
+        jsonText = await issueRequest(url, headers, payload)
         for x in uidArray:
             full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
             os.remove(full_path_with_file)
-    except:
-        print(response)
+    except Exception as e:
+        print(e)
         for x in uidArray:
             full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
             os.remove(full_path_with_file)
-        raise HTTPException(status_code=404, detail='An error has occurred when issuing the certificate to the blockchain.')
-
+        raise HTTPException(status_code=404, detail="Certifying batch to the blockchain failed.")
+    end2 = time.time()
+    print(end2 - start2)
     # TODO: Make requests Async
-    #async with httpx.AsyncClient() as client:
-    #    r = await client.post(url, data = obj)
-    #    print(r)
-
 
     return jsonText
 

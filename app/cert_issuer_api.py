@@ -76,10 +76,15 @@ def add_file_ipns(ipfsHash, generateKey, newKey = None):
     ipnshash = client.name.publish(tempAddress, key=newKey, timeout=300)
     return ipnshash, newKey
 
+async def issue_batch_to_blockchain(config, certificate_batch_handler, transaction_handler, recipientPublicKey, tokenURI):
+    (tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler,
+                                                             recipientPublicKey, tokenURI)
+    return tx_id, token_id
+
+
 #Full Workflow - Called from cert_tools_api
 @app.post("/issueBloxbergCertificate")
-def issue(createToken: createToken, request: Request):
-    print(request)
+async def issue(createToken: createToken, request: Request):
     config = get_config()
     certificate_batch_handler, transaction_handler, connector = \
             ethereum_sc.instantiate_blockchain_handlers(config)
@@ -100,10 +105,12 @@ def issue(createToken: createToken, request: Request):
     else:
         tokenURI = 'https://bloxberg.org'
     try:
-        certificate_batch_handler.set_certificates_in_batch(request.json)
+        tx_id, token_id = await issue_batch_to_blockchain(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey, tokenURI)
+        #certificate_batch_handler.set_certificates_in_batch(request.json)
         # delegating the issuing of the certificate to the respective transaction handler, that will call "createCertificate" on the smart contract
-        (tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey, tokenURI)
-    except:
+        #(tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey, tokenURI)
+    except Exception as e:
+        print(e)
         return "Issuing unsigned certificate batch to blockchain failed"
     #Retrieve file path of certified transaction
     blockchain_file_path = config.blockchain_certificates_dir
