@@ -7,7 +7,7 @@ import os
 import ipfshttpclient
 import uuid
 from fastapi.middleware.cors import CORSMiddleware
-
+import fitz
 import cert_issuer.config
 from cert_issuer.blockchain_handlers import ethereum_sc
 import cert_issuer.issue_certificates
@@ -33,6 +33,7 @@ class createToken(BaseModel):
     recipientPublickey: str
     unSignedCerts: List[str]
     enableIPFS: bool
+    enablePDF: bool
 
     #Used only for Testing API, not for entire workflow.
     class Config:
@@ -40,7 +41,8 @@ class createToken(BaseModel):
             "example": {
                 "recipientPublickey": "0x69575606E8b8F0cAaA5A3BD1fc5D032024Bb85AF",
                 "unSignedCerts": ["45c5caba-378b-49eb-bf24-b0056d300f22", "150ed963-dfad-46ee-b242-dfa2eff98671"],
-                "enableIPFS": True
+                "enableIPFS": True,
+                "enablePDF": True
             }
         }
 
@@ -88,6 +90,17 @@ async def issue(createToken: createToken, request: Request):
     config = get_config()
     certificate_batch_handler, transaction_handler, connector = \
             ethereum_sc.instantiate_blockchain_handlers(config)
+
+    #Make sure pdf_certificates folder is clean
+    try:
+        full_path_with_file = str('./data/' + 'pdf_certificates/')
+        for file_name in os.listdir(full_path_with_file):
+            if file_name.endswith('.pdf'):
+                print(full_path_with_file + file_name)
+                os.remove(full_path_with_file + file_name)
+    except Exception as e:
+        print(e)
+
         # file that stores the ipfs hashes of the certificates in the batch
     if createToken.enableIPFS is True:
         try:
@@ -128,7 +141,19 @@ async def issue(createToken: createToken, request: Request):
             temp = ipfs_object["file_certifications"]
             y = {"id": fileID, "ipfsHash": 'http://ipfs.io/ipfs/' + ipfsHash, "crid": d["crid"]}
             temp.append(y)
-        json_data.append(d)
+
+
+        if createToken.enablePDF is True:
+            doc = fitz.open('./data/bloxbergDataCertificate.pdf')
+            content = open(full_path_with_file, "rb").read()
+            doc.embeddedFileAdd("bloxbergJSONCertificate", content)
+            doc.save('./data/pdf_certificates/' + fileID + '.pdf', garbage=4, deflate=1)
+
+            # Append to json data struct
+        if createToken.enablePDF is False:
+            json_data.append(d)
+
+
 
     # write ipfs object into the ipfs batch file
     try:
@@ -152,7 +177,11 @@ async def issue(createToken: createToken, request: Request):
                 print(full_path_with_file + file_name)
                 os.remove(full_path_with_file + file_name)
 
-    return json_data
+
+    if createToken.enablePDF is False:
+        return json_data
+    else:
+        return
 
 # Test Issuance Endpoint
 @app.post("/issueTest")

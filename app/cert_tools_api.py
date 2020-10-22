@@ -1,8 +1,10 @@
 from typing import List, Optional
 from functools import lru_cache
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import FileResponse, Response
 from cert_tools import instantiate_v3_alpha_certificate_batch, create_v3_alpha_certificate_template
 from pydantic import BaseModel, Field, Json
+from zipfile import ZipFile
 from urllib.error import HTTPError
 import configargparse
 import os
@@ -10,6 +12,7 @@ import httpx
 import time
 import json
 import requests
+import shutil
 
 app = FastAPI()
 
@@ -20,6 +23,7 @@ class Batch(BaseModel):
     crid: List[str] = Field(description= 'Cryptographic Identifier of each file you wish to certify. One certificate will be generated per hash up to a maximum of 1000 in a single request', max_length=1000)
     cridType: Optional[str] = Field(description='If crid is not self-describing, provide the type of cryptographic function you used to generate the cryptographic identifier. Plesae use the name field from the multihash list to ensure compatibility: https://github.com/multiformats/multicodec/blob/master/table.csv')
     enableIPFS: bool = Field(description= 'EXPERIMENTAL: Set to true to enable posting certificate to IPFS. If set to false, will simply return certificates in the response. By default, this is disabled on the server due to performance and storage problems with IPFS')
+    enablePDF: bool = Field(description= 'Set to True if you would like the certificate to be returned as a PDF file')
     metadataJson: Optional[Json] = Field(description='Provide optional metadata to describe the research object batch in more detail that will be included in the certificate.')
 
 
@@ -30,6 +34,7 @@ class Batch(BaseModel):
                 "crid": ["0x0e4ded5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6", "0xfda3124d5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6"],
                 "cridType": "sha2-256",
                 "enableIPFS": False,
+                "enablePDF": True,
                 "metadataJson": "{\"authors\":\"Albert Einstein\"}"
             }
         }
@@ -43,6 +48,54 @@ async def issueRequest(url, headers, payload):
     #     encodedResponse = await response.text.encode('utf8')
     #     jsonText = await json.loads(encodedResponse)
     return jsonText
+
+def zipfiles(filenames):
+    zip_subdir = str(conf.abs_data_dir + '/' + 'pdf_certificates/')
+    zip_filename = "%s.zip" % zip_subdir
+
+    # Open StringIO to grab in-memory ZIP contents
+    s = StringIO.StringIO()
+    # The zip compressor
+    zf = zipfile.ZipFile(s, "w")
+
+    for fpath in filenames:
+        # Calculate path for file in zip
+        fdir, fname = os.path.split(fpath)
+        zip_path = os.path.join(zip_subdir, fname)
+
+        # Add file, at correct path
+        zf.write(fpath, zip_path)
+
+    # Must close zip for all contents to be written
+    zf.close()
+
+    # Grab ZIP file from in-memory, make response with correct MIME-type
+    resp = Response(s.getvalue(), mimetype = "application/x-zip-compressed")
+    # ..and correct content-disposition
+    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+
+    return resp
+
+# Zip the files from given directory that matches the filter
+def zipFilesInDir(dirName, zipFileName, filter):
+
+   # create a ZipFile object
+   print(dirName)
+   with ZipFile(zipFileName, 'w') as zipObj:
+       # Iterate over all the files in directory
+       for folderName, subfolders, filenames in os.walk(dirName):
+           for filename in filenames:
+               removedExtension = os.path.splitext(filename)[0]
+               if removedExtension in filter:
+                   print('yes!')
+                   # create complete filepath of file in directory
+                   filePath = os.path.join(folderName, filename)
+                   # Add file to zip
+                   zipObj.write(filePath, os.path.basename(filePath))
+
+
+
+
 
 
 ##Full Workflow
@@ -76,9 +129,12 @@ async def createBloxbergCertificate(batch: Batch):
 
     end = time.time()
     print(end - start)
-    url = "http://cert_issuer_api:80/issueBloxbergCertificate"
-    
-    payload = {"recipientPublickey": batch.publicKey, "unSignedCerts": uidArray, "enableIPFS": batch.enableIPFS }
+    if python_environment == "production":
+        url = "http://cert_issuer_api:7001/issueBloxbergCertificate"
+    else:
+        url = "http://cert_issuer_api:80/issueBloxbergCertificate"
+
+    payload = {"recipientPublickey": batch.publicKey, "unSignedCerts": uidArray, "enableIPFS": batch.enableIPFS, "enablePDF": batch.enablePDF }
     headers = {
   'Content-Type': 'application/json'
 }
@@ -96,12 +152,26 @@ async def createBloxbergCertificate(batch: Batch):
         for x in uidArray:
             full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
             os.remove(full_path_with_file)
+            full_path_with_pdf = str(conf.abs_data_dir + '/' + 'pdf_certificates/' + x + '.pdf')
+            os.remove(full_path_with_pdf)
         raise HTTPException(status_code=404, detail="Certifying batch to the blockchain failed.")
     end2 = time.time()
     print(end2 - start2)
     # TODO: Make requests Async
+    if batch.enablePDF is False:
+        return jsonText
+    else:
+        #python_file = shutil.make_archive("../cert_issuer/data/pdf_certificates", 'zip', str(conf.abs_data_dir + '/' + 'pdf_certificates/'))
+        filePathZip = "./sample_data/bloxbergResearchCertificates.zip"
+        zipFilesInDir("./sample_data/pdf_certificates", filePathZip, uidArray)
 
-    return jsonText
+        resp = FileResponse(filePathZip, media_type="application/x-zip-compressed")
+        resp.headers['Content-Disposition'] = 'attachment; filename=bloxbergResearchCertificates'
+
+        return resp
+
+
+
 
 ## Test Certificate Generation Endpoint with issuance
 @app.post("/createUnsignedCertificateBatchTest")

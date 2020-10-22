@@ -14,9 +14,11 @@ services:
     volumes:
       - ./app/cert_tools_api.py:/app/main.py
       - ../cert-tools:/app/cert_tools
-    ports:
-       - 7000:80
+      - ../cert-issuer/data/pdf_certificates:/app/cert_tools/sample_data/pdf_certificates
     #restart: unless-stopped
+    ports:
+      - 7000:80
+
 
   cert_issuer_api:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
@@ -35,7 +37,7 @@ services:
       - app=development
     #restart: unless-stopped
     ports:
-       - 7001:80
+      - 7001:80
 
 # TODO: Wait for improved IPNS performance before integrating in production.
   ipfs:
