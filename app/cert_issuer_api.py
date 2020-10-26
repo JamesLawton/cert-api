@@ -142,7 +142,6 @@ async def issue(createToken: createToken, request: Request):
             y = {"id": fileID, "ipfsHash": 'http://ipfs.io/ipfs/' + ipfsHash, "crid": d["crid"]}
             temp.append(y)
 
-
         if createToken.enablePDF is True:
             doc = fitz.open('./data/bloxbergDataCertificate.pdf')
             content = open(full_path_with_file, "rb").read()
@@ -152,8 +151,6 @@ async def issue(createToken: createToken, request: Request):
             # Append to json data struct
         if createToken.enablePDF is False:
             json_data.append(d)
-
-
 
     # write ipfs object into the ipfs batch file
     try:
@@ -176,7 +173,6 @@ async def issue(createToken: createToken, request: Request):
             if file_name.endswith('.json'):
                 print(full_path_with_file + file_name)
                 os.remove(full_path_with_file + file_name)
-
 
     if createToken.enablePDF is False:
         return json_data

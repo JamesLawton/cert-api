@@ -80,14 +80,12 @@ def zipfiles(filenames):
 def zipFilesInDir(dirName, zipFileName, filter):
 
    # create a ZipFile object
-   print(dirName)
    with ZipFile(zipFileName, 'w') as zipObj:
        # Iterate over all the files in directory
        for folderName, subfolders, filenames in os.walk(dirName):
            for filename in filenames:
                removedExtension = os.path.splitext(filename)[0]
                if removedExtension in filter:
-                   print('yes!')
                    # create complete filepath of file in directory
                    filePath = os.path.join(folderName, filename)
                    # Add file to zip
@@ -164,7 +162,6 @@ async def createBloxbergCertificate(batch: Batch):
         #python_file = shutil.make_archive("../cert_issuer/data/pdf_certificates", 'zip', str(conf.abs_data_dir + '/' + 'pdf_certificates/'))
         filePathZip = "./sample_data/bloxbergResearchCertificates.zip"
         zipFilesInDir("./sample_data/pdf_certificates", filePathZip, uidArray)
-
         resp = FileResponse(filePathZip, media_type="application/x-zip-compressed")
         resp.headers['Content-Disposition'] = 'attachment; filename=bloxbergResearchCertificates'
 
