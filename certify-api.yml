@@ -14,7 +14,7 @@ services:
     volumes:
       - ./app/cert_tools_api.py:/app/main.py
       - ../cert-tools:/app/cert_tools
-      - ../cert-issuer/data/pdf_certificates:/app/cert_tools/sample_data/pdf_certificates
+      #- ../cert-issuer/data/pdf_certificates:/app/cert_tools/sample_data/pdf_certificates
     #restart: unless-stopped
     ports:
       - 7000:80

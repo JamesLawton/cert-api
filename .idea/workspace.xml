@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b1ac61f1-92d2-42a3-9749-f0ab40feb902" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/cert-api.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/cert-api.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/cert_issuer_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_issuer_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/cert_tools_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_tools_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/certify-api.yml" beforeDir="false" afterPath="$PROJECT_DIR$/certify-api.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -21,9 +23,11 @@
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../cert-tools" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -52,7 +56,8 @@
       <workItem from="1602507069261" duration="5000" />
       <workItem from="1602574293018" duration="11704000" />
       <workItem from="1602835356761" duration="32551000" />
-      <workItem from="1603699602165" duration="3477000" />
+      <workItem from="1603699602165" duration="7940000" />
+      <workItem from="1603802876249" duration="35618000" />
     </task>
     <servers />
   </component>
@@ -68,6 +73,10 @@
       <screen x="72" y="27" width="1848" height="1053" />
     </state>
     <state x="1010" y="327" width="424" height="491" key="FileChooserDialogImpl/72.27.1848.1053@72.27.1848.1053" timestamp="1602062360662" />
+    <state x="898" y="188" width="1022" height="737" key="SettingsEditor" timestamp="1603879684033">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="898" y="188" width="1022" height="737" key="SettingsEditor/72.27.1848.1053@72.27.1848.1053" timestamp="1603879684033" />
     <state x="1239" y="468" width="427" height="177" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1603115738577">
       <screen x="72" y="27" width="1848" height="1053" />
     </state>
@@ -76,5 +85,13 @@
       <screen x="72" y="27" width="1848" height="1053" />
     </state>
     <state x="941" y="295" width="620" height="522" key="find.popup/72.27.1848.1053@72.27.1848.1053" timestamp="1600437977138" />
+    <state x="197" y="259" width="672" height="678" key="search.everywhere.popup" timestamp="1603979580642">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="197" y="259" width="672" height="678" key="search.everywhere.popup/72.27.1848.1053@72.27.1848.1053" timestamp="1603979580642" />
+    <state x="1150" y="445" width="540" height="223" key="vcs.readOnlyHandler.ReadOnlyStatusDialog" timestamp="1603879881310">
+      <screen x="72" y="27" width="1848" height="1053" />
+    </state>
+    <state x="1150" y="445" width="540" height="223" key="vcs.readOnlyHandler.ReadOnlyStatusDialog/72.27.1848.1053@72.27.1848.1053" timestamp="1603879881310" />
   </component>
 </project>
