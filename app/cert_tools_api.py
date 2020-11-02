@@ -6,8 +6,10 @@ from cert_tools import instantiate_v3_alpha_certificate_batch, create_v3_alpha_c
 from pydantic import BaseModel, Field, Json
 from zipfile import ZipFile
 from urllib.error import HTTPError
+from lds_merkle_proof_2019.merkle_proof_2019 import MerkleProof2019
 import configargparse
 import uuid
+import pyqrcode
 import fitz
 import io
 import os
@@ -205,16 +207,15 @@ def generatePDF(request: jsonCertificateBatch):
     requestJson = request.json()
     certificateObject = json.loads(requestJson)
     uidArray = []
-    #for certificate in request.__root__:
     for certificate in certificateObject:
         generatedID = str(uuid.uuid1())
         uidArray.append(generatedID)
         stringCert = json.dumps(certificate)
         bytestring = io.StringIO(stringCert)
         content = io.BytesIO(bytestring.read().encode('utf8'))
-        doc = fitz.open('./bloxbergDataCertificate.pdf')
-        doc.embeddedFileAdd("bloxbergJSONCertificate", content)
-        doc.save('./sample_data/pdf_certificates/' + generatedID + '.pdf', garbage=4, deflate=1)
+
+        buildPDF(content, certificate, generatedID)
+
 
     filePathZip = "./sample_data/bloxbergResearchCertificates.zip"
     zipfilesindir("./sample_data/pdf_certificates", filePathZip, uidArray)
@@ -229,3 +230,67 @@ def generatePDF(request: jsonCertificateBatch):
             os.remove(full_path_with_file + file_name)
 
     return resp
+
+
+def buildPDF(content, certificate, generatedID):
+    doc = fitz.open('./bloxbergDataCertificate.pdf')
+
+    decodedProof = decode_proof(certificate['proof']['proofValue'])
+    blockchainLink = decodedProof['anchors'][0]
+
+
+    page = doc[0]
+    p1 = fitz.Point(65, 330)
+    p2 = fitz.Point(65, 380)
+    p3 = fitz.Point(65, 430)
+    p4 = fitz.Point(65, 480)
+    crytographicIdentifier = certificate['crid']
+    transactionIdentifier = blockchainLink.replace('blink:eth:bloxberg:', '')
+    timestamp = certificate['proof']['created']
+    print(decodedProof)
+    merkleRoot = decodedProof['merkleRoot']
+
+    page.insertText(p1,  # bottom-left of 1st char
+                    crytographicIdentifier,  # the text (honors '\n')
+                    fontname="helv",  # the default font
+                    stroke_opacity=0.50,
+                    fontsize=11,  # the default font size
+                    rotate=0,  # also available: 90, 180, 270
+                    )
+    page.insertText(p2,  # bottom-left of 1st char
+                    transactionIdentifier,  # the text (honors '\n')
+                    fontname="helv",  # the default font
+                    stroke_opacity=0.50,
+                    fontsize=11,  # the default font size
+                    rotate=0,  # also available: 90, 180, 270
+                    )
+    page.insertText(p3,  # bottom-left of 1st char
+                    timestamp,  # the text (honors '\n')
+                    fontname="helv",  # the default font
+                    stroke_opacity=0.50,
+                    fontsize=11,  # the default font size
+                    rotate=0,  # also available: 90, 180, 270
+                    )
+    page.insertText(p4,  # bottom-left of 1st char
+                    merkleRoot,  # the text (honors '\n')
+                    fontname="helv",  # the default font
+                    stroke_opacity=0.50,
+                    fontsize=11,  # the default font size
+                    rotate=0,  # also available: 90, 180, 270
+                    )
+
+    #QRCode Generation
+    url = pyqrcode.create('https://certify.bloxberg.org/verify', error='L', version=27)
+    buffer = io.BytesIO()
+    url.png(buffer)
+
+    rect = fitz.Rect(565, 350, 765, 550)     # where we want to put the image
+    pix = fitz.Pixmap(buffer.getvalue())        # any supported image file
+    page.insertImage(rect, pixmap=pix, overlay=True)   # insert image
+    doc.embeddedFileAdd("bloxbergJSONCertificate", content)
+    doc.save('./sample_data/pdf_certificates/' + generatedID + '.pdf', garbage=4, deflate=1)
+
+def decode_proof(proofEncoded):
+    mp2019 = MerkleProof2019()
+    check_decoded = mp2019.decode(proofEncoded)
+    return check_decoded
