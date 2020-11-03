@@ -159,10 +159,10 @@ async def createBloxbergCertificate(batch: Batch):
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
     if batch.metadataJson is not None:
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey,
-                                                                            batch.crid, batch.metadataJson)
+                                                                            batch.crid, batch.cridType, batch.metadataJson)
     else:
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey,
-                                                                            batch.crid)
+                                                                            batch.crid, batch.cridType)
     end = time.time()
     print(end - start)
     if python_environment == "production":
