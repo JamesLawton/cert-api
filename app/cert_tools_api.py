@@ -53,6 +53,7 @@ class Batch(BaseModel):
 
 class jsonCertificate(BaseModel):
     context: Optional[List[str]] = Field(
+        alias='@context',
         description='Relevant JSON-LD context links in order to validate Verifiable Credentials according to their spec.'
     )
     id: str
@@ -213,9 +214,7 @@ def generatePDF(request: jsonCertificateBatch):
         stringCert = json.dumps(certificate)
         bytestring = io.StringIO(stringCert)
         content = io.BytesIO(bytestring.read().encode('utf8'))
-
         buildPDF(content, certificate, generatedID)
-
 
     filePathZip = "./sample_data/bloxbergResearchCertificates.zip"
     zipfilesindir("./sample_data/pdf_certificates", filePathZip, uidArray)
@@ -234,10 +233,8 @@ def generatePDF(request: jsonCertificateBatch):
 
 def buildPDF(content, certificate, generatedID):
     doc = fitz.open('./bloxbergDataCertificate.pdf')
-
     decodedProof = decode_proof(certificate['proof']['proofValue'])
     blockchainLink = decodedProof['anchors'][0]
-
 
     page = doc[0]
     p1 = fitz.Point(65, 330)
@@ -247,7 +244,6 @@ def buildPDF(content, certificate, generatedID):
     crytographicIdentifier = certificate['crid']
     transactionIdentifier = blockchainLink.replace('blink:eth:bloxberg:', '')
     timestamp = certificate['proof']['created']
-    print(decodedProof)
     merkleRoot = decodedProof['merkleRoot']
 
     page.insertText(p1,  # bottom-left of 1st char
@@ -284,7 +280,9 @@ def buildPDF(content, certificate, generatedID):
     buffer = io.BytesIO()
     url.png(buffer)
 
-    rect = fitz.Rect(565, 350, 765, 550)     # where we want to put the image
+
+    #QR code embedding
+    rect = fitz.Rect(575, 298, 775, 498)     # where we want to put the image
     pix = fitz.Pixmap(buffer.getvalue())        # any supported image file
     page.insertImage(rect, pixmap=pix, overlay=True)   # insert image
     doc.embeddedFileAdd("bloxbergJSONCertificate", content)
