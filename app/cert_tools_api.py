@@ -1,7 +1,10 @@
 from typing import List, Optional
 from functools import lru_cache
-from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import FileResponse, Response
+from fastapi import Depends, FastAPI, Request, HTTPException, status
+from fastapi.responses import FileResponse, Response, JSONResponse
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
 from cert_tools import instantiate_v3_alpha_certificate_batch, create_v3_alpha_certificate_template
 from pydantic import BaseModel, Field, Json
 from zipfile import ZipFile
@@ -19,8 +22,36 @@ import json
 import requests
 import shutil
 
-app = FastAPI()
+tags_metadata = [
+    {
+        "name": "certificate",
+        "description": "Creates, transacts, and signs a research object certificate on the bloxberg blockchain. Hashes must be generated client side for each desired file and provided in an array. Each hash corresponds to one research object certificate returned in a JSON object array."
+    },
+    {
+        "name": "pdf",
+        "description": "Accepts as input the response from the createBloxbergCertificate endpoint, for example a research object JSON array."
+    }
+]
 
+app = FastAPI(openapi_tags=tags_metadata)
+
+origins = [
+    "http://localhost:3001"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({"detail": exc.errors(), "body": exc.body}),
+    )
 
 class Batch(BaseModel):
     publicKey: str = Field(
@@ -117,7 +148,7 @@ async def issueRequest(url, headers, payload):
     #     jsonText = await json.loads(encodedResponse)
     return jsonText
 
-# Zip the files from given directory that matches the filter
+# my  the files from given directory that matches the filter
 def zipfilesindir(dirName, zipFileName, filter=None):
     # create a ZipFile object
     with ZipFile(zipFileName, 'w') as zipObj:
@@ -132,8 +163,15 @@ def zipfilesindir(dirName, zipFileName, filter=None):
                     zipObj.write(filePath, os.path.basename(filePath))
 
 ##Full Workflow
-@app.post("/createBloxbergCertificate")
+@app.post("/createBloxbergCertificate", tags=['certificate'])
 async def createBloxbergCertificate(batch: Batch):
+
+    """
+    Creates, transacts, and signs a research object certificate on the bloxberg blockchain. Hashes must be generated client side for each desired file and provided in an array. Each hash corresponds to one research object certificate returned in a JSON object array.
+
+    """
+
+
     # Currently don't support IPFS due to performance and space issues.
     if batch.enableIPFS is True:
         raise HTTPException(status_code=400,
@@ -141,7 +179,7 @@ async def createBloxbergCertificate(batch: Batch):
     # limit number of CRIDs to 1000
     if len(batch.crid) >= 101:
         raise HTTPException(status_code=400,
-                            detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
+                            detail="You are trying to certify too many files at once, please limit to 100 files per batch.")
 
     conf = create_v3_alpha_certificate_template.get_config()
 
@@ -158,6 +196,7 @@ async def createBloxbergCertificate(batch: Batch):
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.publicKey)
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
     if batch.metadataJson is not None:
+        print(batch.cridType)
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey,
                                                                             batch.crid, batch.cridType, batch.metadataJson)
     else:
@@ -203,12 +242,17 @@ async def createBloxbergCertificate(batch: Batch):
 
 
 
-@app.post("/generatePDF")
+@app.post("/generatePDF", tags=['pdf'])
 def generatePDF(request: jsonCertificateBatch):
+    """
+    Accepts as input the response from the createBloxbergCertificate endpoint, for example a research object JSON array.
+    """
+
     requestJson = request.json()
     certificateObject = json.loads(requestJson)
     uidArray = []
     for certificate in certificateObject:
+        certificate['@context'] = certificate.pop('context')
         generatedID = str(uuid.uuid1())
         uidArray.append(generatedID)
         stringCert = json.dumps(certificate)

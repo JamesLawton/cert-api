@@ -96,16 +96,6 @@ async def issue(createToken: createToken, request: Request):
     certificate_batch_handler, transaction_handler, connector = \
         ethereum_sc.instantiate_blockchain_handlers(config)
 
-    # Make sure pdf_certificates folder is clean
-    try:
-        full_path_with_file = str('./data/' + 'pdf_certificates/')
-        for file_name in os.listdir(full_path_with_file):
-            if file_name.endswith('.pdf'):
-                print(full_path_with_file + file_name)
-                os.remove(full_path_with_file + file_name)
-    except Exception as e:
-        print(e)
-
         # file that stores the ipfs hashes of the certificates in the batch
     if createToken.enableIPFS is True:
         try:
