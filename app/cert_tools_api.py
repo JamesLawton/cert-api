@@ -58,7 +58,7 @@ class Batch(BaseModel):
         description='Public bloxberg address where the Research Object Certificate token will be minted')
     crid: List[str] = Field(
         description='Cryptographic Identifier of each file you wish to certify. One certificate will be generated per hash up to a maximum of 1000 in a single request',
-        max_length=1000)
+        max_length=1001)
     cridType: Optional[str] = Field(
         description='If crid is not self-describing, provide the type of cryptographic function you used to generate the cryptographic identifier.'
                     ' Please use the name field from the multihash list to ensure compatibility: https://github.com/multiformats/multicodec/blob/master/table.csv')
@@ -177,9 +177,9 @@ async def createBloxbergCertificate(batch: Batch):
         raise HTTPException(status_code=400,
                             detail="IPFS is not supported currently due to performance and storage requirements.")
     # limit number of CRIDs to 1000
-    if len(batch.crid) >= 101:
+    if len(batch.crid) >= 1001:
         raise HTTPException(status_code=400,
-                            detail="You are trying to certify too many files at once, please limit to 100 files per batch.")
+                            detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
 
     conf = create_v3_alpha_certificate_template.get_config()
 

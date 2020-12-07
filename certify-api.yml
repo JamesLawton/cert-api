@@ -5,7 +5,7 @@ services:
     working_dir: /app/cert_tools
     command: bash -c "pip install -r requirements.txt && /start-reload.sh"
     container_name: cert_tools_api
-    mem_limit: 512000000
+    mem_limit: '512000000'
     memswap_limit: 512000000
     mem_swappiness: 0
     user: "0:0"
@@ -29,7 +29,7 @@ services:
     working_dir: /app/cert_issuer
     command: bash -c "pip3 install -r ethereum_smart_contract_requirements.txt && /start-reload.sh"
     container_name: cert_issuer_api
-    mem_limit: 512000000
+    mem_limit: '512000000'
     memswap_limit: 512000000
     mem_swappiness: 0
     user: "0:0"
