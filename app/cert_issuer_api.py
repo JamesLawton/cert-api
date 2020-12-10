@@ -120,7 +120,9 @@ async def issue(createToken: createToken, request: Request):
         # (tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey, tokenURI)
     except Exception as e:
         print(e)
-        return "Issuing unsigned certificate batch to blockchain failed"
+        return status.HTTP_400_BAD_REQUEST
+        #raise HTTPException(status_code=400, detail="Issuing unsigned certificate batch to blockchain failed")
+
     # Retrieve file path of certified transaction
     blockchain_file_path = config.blockchain_certificates_dir
     json_data = []

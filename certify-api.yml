@@ -10,6 +10,9 @@ services:
     mem_swappiness: 0
     user: "0:0"
     environment:
+      - WORKERS_PER_CORE=2
+      - WEB_CONCURRENCY=3
+      - MAX_WORKERS=12
       - app=development
     volumes:
       - ./app/cert_tools_api.py:/app/main.py
@@ -18,7 +21,6 @@ services:
     #restart: unless-stopped
     ports:
       - 7000:80
-
 
   cert_issuer_api:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
@@ -34,20 +36,23 @@ services:
     mem_swappiness: 0
     user: "0:0"
     environment:
+      - WORKERS_PER_CORE=2
+      - WEB_CONCURRENCY=3
+      - MAX_WORKERS=12
       - app=development
     #restart: unless-stopped
     ports:
       - 7001:80
 
 # TODO: Wait for improved IPNS performance before integrating in production.
-  ipfs:
-    image: ipfs/go-ipfs:v0.6.0
-    environment:
+  #ipfs:
+  #  image: ipfs/go-ipfs:v0.6.0
+  #  environment:
     #  - IPFS_PROFILE=server
-      - IPFS_PATH=/ipfsdata
-    volumes:
-      - ../ipfsdata:/ipfsdata
-    ports:
+  #    - IPFS_PATH=/ipfsdata
+  #  volumes:
+  #    - ../ipfsdata:/ipfsdata
+  #  ports:
       - "4001:4001"
       - "8080:8080"
       - "8081:8081"

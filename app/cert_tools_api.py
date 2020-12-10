@@ -168,15 +168,14 @@ async def createBloxbergCertificate(batch: Batch):
 
     """
     Creates, transacts, and signs a research object certificate on the bloxberg blockchain. Hashes must be generated client side for each desired file and provided in an array. Each hash corresponds to one research object certificate returned in a JSON object array.
-
     """
-
 
     # Currently don't support IPFS due to performance and space issues.
     if batch.enableIPFS is True:
         raise HTTPException(status_code=400,
                             detail="IPFS is not supported currently due to performance and storage requirements.")
     # limit number of CRIDs to 1000
+    print(len(batch.crid))
     if len(batch.crid) >= 1001:
         raise HTTPException(status_code=400,
                             detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
@@ -224,6 +223,7 @@ async def createBloxbergCertificate(batch: Batch):
             full_path_with_file = str(conf.abs_data_dir + '/' + 'unsigned_certificates/' + x + '.json')
             os.remove(full_path_with_file)
     except Exception as e:
+        print('Bad post request')
         print(e)
         try:
             for x in uidArray:
@@ -236,7 +236,6 @@ async def createBloxbergCertificate(batch: Batch):
         raise HTTPException(status_code=404, detail="Certifying batch to the blockchain failed.")
     end2 = time.time()
     print(end2 - start2)
-    # TODO: Make requests Async
 
     return jsonText
 
