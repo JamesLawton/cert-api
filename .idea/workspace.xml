@@ -20,10 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1ac61f1-92d2-42a3-9749-f0ab40feb902" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/cert_issuer_test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/cert_issuer_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_issuer_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/cert_tools_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_tools_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/certify-api.yml" beforeDir="false" afterPath="$PROJECT_DIR$/certify-api.yml" afterDir="false" />
     </list>
@@ -93,7 +90,8 @@
       <workItem from="1605256508320" duration="3780000" />
       <workItem from="1605783565342" duration="607000" />
       <workItem from="1605792159057" duration="604000" />
-      <workItem from="1607506983587" duration="24830000" />
+      <workItem from="1607506983587" duration="27981000" />
+      <workItem from="1607690525986" duration="1030000" />
     </task>
     <servers />
   </component>
@@ -110,6 +108,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="706" y="378" width="570" height="357" key="#Notifications" timestamp="1599569896084">

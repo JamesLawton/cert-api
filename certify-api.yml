@@ -14,6 +14,7 @@ services:
       - WEB_CONCURRENCY=3
       - MAX_WORKERS=12
       - app=development
+      - CERT_ISSUER_CONTAINER="cert_issuer_api:7001"
     volumes:
       - ./app/cert_tools_api.py:/app/main.py
       - ../cert-tools:/app/cert_tools

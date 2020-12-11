@@ -204,7 +204,8 @@ async def createBloxbergCertificate(batch: Batch):
     end = time.time()
     print(end - start)
     if python_environment == "production":
-        url = "http://cert_issuer_api:7001/issueBloxbergCertificate"
+        cert_issuer_address = os.getenv("CERT_ISSUER_CONTAINER")
+        url = "http://" + cert_issuer_address + "/issueBloxbergCertificate"
     else:
         url = "http://cert_issuer_api:80/issueBloxbergCertificate"
 
