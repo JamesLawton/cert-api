@@ -1,9 +1,10 @@
 from typing import List, Optional
 from functools import lru_cache
-from fastapi import Depends, FastAPI, Request, HTTPException
+from fastapi import Depends, FastAPI, Request, HTTPException, status
 from pydantic import BaseModel
 import json
 import os
+import cProfile
 import ipfshttpclient
 import uuid
 from fastapi.middleware.cors import CORSMiddleware
@@ -113,15 +114,19 @@ async def issue(createToken: createToken, request: Request):
     else:
         tokenURI = 'https://bloxberg.org'
     try:
+        #pr = cProfile.Profile()
+        #pr.enable()
         tx_id, token_id = await issue_batch_to_blockchain(config, certificate_batch_handler, transaction_handler,
-                                                          createToken.recipientPublickey, tokenURI)
+                                          createToken.recipientPublickey, tokenURI)
+        #pr.disable()
+        #pr.print_stats(sort="tottime")
+        #pr.dump_stats('profileAPI.pstat')
         # certificate_batch_handler.set_certificates_in_batch(request.json)
         # delegating the issuing of the certificate to the respective transaction handler, that will call "createCertificate" on the smart contract
         # (tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey, tokenURI)
     except Exception as e:
         print(e)
         return status.HTTP_400_BAD_REQUEST
-        #raise HTTPException(status_code=400, detail="Issuing unsigned certificate batch to blockchain failed")
 
     # Retrieve file path of certified transaction
     blockchain_file_path = config.blockchain_certificates_dir

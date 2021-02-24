@@ -57,8 +57,8 @@ class Batch(BaseModel):
     publicKey: str = Field(
         description='Public bloxberg address where the Research Object Certificate token will be minted')
     crid: List[str] = Field(
-        description='Cryptographic Identifier of each file you wish to certify. One certificate will be generated per hash up to a maximum of 1000 in a single request',
-        max_length=1001)
+        description='Cryptographic Identifier of each file you wish to certify. One certificate will be generated per hash up to a maximum of 5001 in a single request',
+        max_length=5001)
     cridType: Optional[str] = Field(
         description='If crid is not self-describing, provide the type of cryptographic function you used to generate the cryptographic identifier.'
                     ' Please use the name field from the multihash list to ensure compatibility: https://github.com/multiformats/multicodec/blob/master/table.csv')
@@ -176,9 +176,9 @@ async def createBloxbergCertificate(batch: Batch):
                             detail="IPFS is not supported currently due to performance and storage requirements.")
     # limit number of CRIDs to 1000
     print(len(batch.crid))
-    if len(batch.crid) >= 1001:
+    if len(batch.crid) >= 5001:
         raise HTTPException(status_code=400,
-                            detail="You are trying to certify too many files at once, please limit to 1000 files per batch.")
+                            detail="You are trying to certify too many files at once, please limit to 5000 files per batch.")
 
     conf = create_v3_alpha_certificate_template.get_config()
 
@@ -195,7 +195,6 @@ async def createBloxbergCertificate(batch: Batch):
     create_v3_alpha_certificate_template.write_certificate_template(conf, batch.publicKey)
     conf_instantiate = instantiate_v3_alpha_certificate_batch.get_config()
     if batch.metadataJson is not None:
-        print(batch.cridType)
         uidArray = instantiate_v3_alpha_certificate_batch.instantiate_batch(conf_instantiate, batch.publicKey,
                                                                             batch.crid, batch.cridType, batch.metadataJson)
     else:
@@ -330,7 +329,7 @@ def buildPDF(content, certificate, generatedID):
     pix = fitz.Pixmap(buffer.getvalue())        # any supported image file
     page.insertImage(rect, pixmap=pix, overlay=True)   # insert image
     doc.embeddedFileAdd("bloxbergJSONCertificate", content)
-    doc.save('./sample_data/pdf_certificates/' + generatedID + '.pdf', garbage=4, deflate=1)
+    doc.save('./sample_data/pdf_certificates/' + generatedID + '.pdf', garbage=4, deflate=True)
 
 def decode_proof(proofEncoded):
     mp2019 = MerkleProof2019()
