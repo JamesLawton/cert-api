@@ -1,7 +1,7 @@
 from typing import List, Optional
 from functools import lru_cache
-from fastapi import Depends, FastAPI, Request, HTTPException, status
-from fastapi.responses import FileResponse, Response, JSONResponse
+from fastapi import Depends, FastAPI, Request, HTTPException, status, BackgroundTasks
+from fastapi.responses import FileResponse, Response, JSONResponse, StreamingResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
@@ -148,19 +148,7 @@ async def issueRequest(url, headers, payload):
     #     jsonText = await json.loads(encodedResponse)
     return jsonText
 
-# my  the files from given directory that matches the filter
-def zipfilesindir(dirName, zipFileName, filter=None):
-    # create a ZipFile object
-    with ZipFile(zipFileName, 'w') as zipObj:
-        # Iterate over all the files in directory
-        for folderName, subfolders, filenames in os.walk(dirName):
-            for filename in filenames:
-                removedExtension = os.path.splitext(filename)[0]
-                if removedExtension in filter or filter is None:
-                    # create complete filepath of file in directory
-                    filePath = os.path.join(folderName, filename)
-                    # Add file to zip
-                    zipObj.write(filePath, os.path.basename(filePath))
+
 
 ##Full Workflow
 @app.post("/createBloxbergCertificate", tags=['certificate'])
@@ -239,10 +227,23 @@ async def createBloxbergCertificate(batch: Batch):
 
     return jsonText
 
-
+# my  the files from given directory that matches the filter
+def zipfilesindir(dirName, zipFileName, filter=None):
+    # create a ZipFile object
+    with ZipFile(zipFileName, 'w') as zipObj:
+        # Iterate over all the files in directory
+        for folderName, subfolders, filenames in os.walk(dirName):
+            for filename in filenames:
+                removedExtension = os.path.splitext(filename)[0]
+                if removedExtension in filter or filter is None:
+                    # create complete filepath of file in directory
+                    filePath = os.path.join(folderName, filename)
+                    # Add file to zip
+                    zipObj.write(filePath, os.path.basename(filePath))
+        return
 
 @app.post("/generatePDF", tags=['pdf'])
-def generatePDF(request: jsonCertificateBatch):
+async def generatePDF(request: jsonCertificateBatch, background_tasks: BackgroundTasks):
     """
     Accepts as input the response from the createBloxbergCertificate endpoint, for example a research object JSON array.
     """
@@ -257,24 +258,29 @@ def generatePDF(request: jsonCertificateBatch):
         stringCert = json.dumps(certificate)
         bytestring = io.StringIO(stringCert)
         content = io.BytesIO(bytestring.read().encode('utf8'))
-        buildPDF(content, certificate, generatedID)
+        await buildPDF(content, certificate, generatedID)
 
-    filePathZip = "./sample_data/bloxbergResearchCertificates.zip"
+
+    tempZip = str(uuid.uuid1())
+    filePathZip = "./sample_data/zipFiles/" + tempZip + ".zip"
     zipfilesindir("./sample_data/pdf_certificates", filePathZip, uidArray)
+
     resp = FileResponse(filePathZip, media_type="application/x-zip-compressed")
     resp.headers['Content-Disposition'] = 'attachment; filename=bloxbergResearchCertificates'
 
-    full_path_with_file = str('./sample_data/pdf_certificates/')
-
-    for file_name in os.listdir(full_path_with_file):
-        if file_name.endswith('.pdf'):
-            print(full_path_with_file + file_name)
-            os.remove(full_path_with_file + file_name)
-
+    file_path = str('./sample_data/pdf_certificates/')
+    #Clean up after response
+    background_tasks.add_task(removeTempFiles, file_path, filePathZip, uidArray)
     return resp
 
+def removeTempFiles(file_path, filePathZip, uidArray):
+    os.remove(filePathZip)
+    for x in uidArray:
+        full_path_with_file = str(file_path + x + '.pdf')
+        print(full_path_with_file)
+        os.remove(full_path_with_file)
 
-def buildPDF(content, certificate, generatedID):
+async def buildPDF(content, certificate, generatedID):
     doc = fitz.open('./bloxbergDataCertificate.pdf')
     decodedProof = decode_proof(certificate['proof']['proofValue'])
     blockchainLink = decodedProof['anchors'][0]

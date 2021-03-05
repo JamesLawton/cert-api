@@ -21,7 +21,6 @@
   <component name="ChangeListManager">
     <list default="true" id="b1ac61f1-92d2-42a3-9749-f0ab40feb902" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/cert_issuer_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_issuer_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/cert_tools_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/cert_tools_api.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -97,7 +96,7 @@
       <workItem from="1611305635782" duration="1025000" />
       <workItem from="1611675036251" duration="8405000" />
       <workItem from="1611830252898" duration="4192000" />
-      <workItem from="1614155406218" duration="102000" />
+      <workItem from="1614155406218" duration="14850000" />
     </task>
     <servers />
   </component>
