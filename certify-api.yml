@@ -5,47 +5,59 @@ services:
     working_dir: /app/cert_tools
     command: bash -c "pip install -r requirements.txt && /start-reload.sh"
     container_name: cert_tools_api
-    cpus: 1
-    mem_limit: 512000000
+    mem_limit: '512000000'
     memswap_limit: 512000000
     mem_swappiness: 0
     user: "0:0"
+    environment:
+      - WORKERS_PER_CORE=2
+      - WEB_CONCURRENCY=3
+      - MAX_WORKERS=12
+      - app=development
+      - CERT_ISSUER_CONTAINER="cert_issuer_api:7001"
     volumes:
-      - ./app/cert_tools_api.py:/app/main.py
+      - ./app/controller/tools_application.py:/app/main.py
+      - ./app/controller:/app/controller
       - ../cert-tools:/app/cert_tools
-    ports:
-       - 7000:80
+      #- ../cert-issuer/data/pdf_certificates:/app/cert_tools/sample_data/pdf_certificates
     #restart: unless-stopped
+    ports:
+      - 7000:80
 
   cert_issuer_api:
     image: tiangolo/uvicorn-gunicorn-fastapi:python3.7
     volumes:
-      - ./app/cert_issuer_api.py:/app/main.py
+      - ./app/controller/issuer_application.py:/app/main.py
+      - ./app/controller:/app/controller
       - ../cert-issuer:/app/cert_issuer
       - ../cert-tools/sample_data/unsigned_certificates:/app/cert_issuer/data/unsigned_certificates
     working_dir: /app/cert_issuer
     command: bash -c "pip3 install -r ethereum_smart_contract_requirements.txt && /start-reload.sh"
     container_name: cert_issuer_api
-    cpus: 1
-    mem_limit: 512000000
+    mem_limit: '512000000'
     memswap_limit: 512000000
     mem_swappiness: 0
     user: "0:0"
+    environment:
+      - WORKERS_PER_CORE=2
+      - WEB_CONCURRENCY=3
+      - MAX_WORKERS=12
+      - app=development
     #restart: unless-stopped
     ports:
-       - 7001:80
+      - 7001:80
 
-  ipfs:
-    image: ipfs/go-ipfs:v0.6.0
-    environment:
+# TODO: Wait for improved IPNS performance before integrating in production.
+  #ipfs:
+  #  image: ipfs/go-ipfs:v0.6.0
+  #  environment:
     #  - IPFS_PROFILE=server
-      - IPFS_PATH=/ipfsdata
-    volumes:
-      - ../ipfsdata:/ipfsdata
-    ports:
+  #    - IPFS_PATH=/ipfsdata
+  #  volumes:
+  #    - ../ipfsdata:/ipfsdata
+  #  ports:
       - "4001:4001"
       - "8080:8080"
       - "8081:8081"
       - "5001:5001"
-
 

@@ -22,3 +22,9 @@ It is assumed that the directory structure looks like
 ├── cert-tools
 
 ```
+
+Testing suite:
+
+```
+ docker exec -it cert_tools_api pytest
+```
