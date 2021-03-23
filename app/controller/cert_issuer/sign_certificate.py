@@ -12,22 +12,10 @@ import fitz
 import cert_issuer.config
 from cert_issuer.blockchain_handlers import ethereum_sc
 import cert_issuer.issue_certificates
+from fastapi import APIRouter
 
-app = FastAPI()
+router = APIRouter()
 config = None
-
-origins = [
-    "http://localhost",
-    "http://localhost:8080",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 class createToken(BaseModel):
@@ -53,36 +41,6 @@ def get_config():
     return config
 
 
-def update_ipfs_link(token_id, token_uri):
-    config = get_config()
-    print(config.unsigned_certificates_dir)
-    certificate_batch_handler, transaction_handler, connector = \
-        ethereum_sc.instantiate_blockchain_handlers(config)
-    # calling the smart contract to update the token uri for the token id
-    cert_issuer.issue_certificates.update_token_uri(config, certificate_batch_handler, transaction_handler, token_id,
-                                                    token_uri)
-    return
-
-
-def add_file_ipfs(cert_path):
-    # Important to put name of IPFS container
-    client = ipfshttpclient.connect('/dns/ipfs/tcp/5001')
-    hash = client.add(cert_path)
-    return hash['Hash']
-
-
-##Experimental IPNS - IPNS is still in Alpha so it is relatively slow. Not recommended for production
-# TODO: Implement key rotation
-def add_file_ipns(ipfsHash, generateKey, newKey=None):
-    client = ipfshttpclient.connect('/dns/ipfs/tcp/5001')
-    if generateKey is True:
-        newKey = str(uuid.uuid1())
-        client.key.gen(newKey, "rsa")["Name"]
-    tempAddress = '/ipfs/' + ipfsHash
-    ipnshash = client.name.publish(tempAddress, key=newKey, timeout=300)
-    return ipnshash, newKey
-
-
 async def issue_batch_to_blockchain(config, certificate_batch_handler, transaction_handler, recipientPublicKey,
                                     tokenURI):
     (tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler,
@@ -91,7 +49,7 @@ async def issue_batch_to_blockchain(config, certificate_batch_handler, transacti
 
 
 # Full Workflow - Called from cert_tools_api
-@app.post("/issueBloxbergCertificate")
+@router.post("/issueBloxbergCertificate")
 async def issue(createToken: createToken, request: Request):
     config = get_config()
     certificate_batch_handler, transaction_handler, connector = \
@@ -100,17 +58,13 @@ async def issue(createToken: createToken, request: Request):
         # file that stores the ipfs hashes of the certificates in the batch
     if createToken.enableIPFS is True:
         try:
-            ipfs_batch_file = "./data/meta_certificates/" + str(uuid.uuid1()) + '.json'
-            ipfs_object = {"file_certifications": []}
             ipfsHash = add_file_ipfs("./data/meta_certificates/.placeholder")
             generateKey = True
             ipnsHash, generatedKey = add_file_ipns(ipfsHash, generateKey)
-            print("Initial IPNS Commit")
             tokenURI = 'http://ipfs.io/ipns/' + ipnsHash['Name']
-            print(tokenURI)
         except Exception as e:
             print(e)
-            return "Couldn't add file to IPFS"
+            raise HTTPException(status_code=400, detail=f"Couldn't add file to IPFS")
     else:
         tokenURI = 'https://bloxberg.org'
     try:
@@ -121,12 +75,8 @@ async def issue(createToken: createToken, request: Request):
         #pr.disable()
         #pr.print_stats(sort="tottime")
         #pr.dump_stats('profileAPI.pstat')
-        # certificate_batch_handler.set_certificates_in_batch(request.json)
-        # delegating the issuing of the certificate to the respective transaction handler, that will call "createCertificate" on the smart contract
-        # (tx_id, token_id) = cert_issuer.issue_certificates.issue(config, certificate_batch_handler, transaction_handler, createToken.recipientPublickey, tokenURI)
     except Exception as e:
-        print(e)
-        return status.HTTP_400_BAD_REQUEST
+        raise HTTPException(status_code=400, detail=f"Failed to issue certificate batch to the blockchain")
 
     # Retrieve file path of certified transaction
     blockchain_file_path = config.blockchain_certificates_dir

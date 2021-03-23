@@ -1,0 +1,228 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "array",
+  "items": [
+    {
+      "type": "object",
+      "properties": {
+        "@context": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "type": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "issuanceDate": {
+          "type": "string"
+        },
+        "credentialSubject": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "issuingOrg": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "issuingOrg"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "crid": {
+          "type": "string"
+        },
+        "cridType": {
+          "type": "string"
+        },
+        "metadataJson": {
+          "type": "string"
+        },
+        "proof": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "proofValue": {
+              "type": "string"
+            },
+            "proofPurpose": {
+              "type": "string"
+            },
+            "verificationMethod": {
+              "type": "string"
+            },
+            "ens_name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "created",
+            "proofValue",
+            "proofPurpose",
+            "verificationMethod",
+            "ens_name"
+          ]
+        }
+      },
+      "required": [
+        "@context",
+        "type",
+        "issuer",
+        "issuanceDate",
+        "credentialSubject",
+        "id",
+        "crid",
+        "cridType",
+        "metadataJson",
+        "proof"
+      ]
+    },
+    {
+      "type": "object",
+      "properties": {
+        "@context": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "type": {
+          "type": "array",
+          "items": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "string"
+            }
+          ]
+        },
+        "issuer": {
+          "type": "string"
+        },
+        "issuanceDate": {
+          "type": "string"
+        },
+        "credentialSubject": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "issuingOrg": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id"
+              ]
+            }
+          },
+          "required": [
+            "id",
+            "issuingOrg"
+          ]
+        },
+        "id": {
+          "type": "string"
+        },
+        "crid": {
+          "type": "string"
+        },
+        "cridType": {
+          "type": "string"
+        },
+        "metadataJson": {
+          "type": "string"
+        },
+        "proof": {
+          "type": "object",
+          "properties": {
+            "type": {
+              "type": "string"
+            },
+            "created": {
+              "type": "string"
+            },
+            "proofValue": {
+              "type": "string"
+            },
+            "proofPurpose": {
+              "type": "string"
+            },
+            "verificationMethod": {
+              "type": "string"
+            },
+            "ens_name": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "created",
+            "proofValue",
+            "proofPurpose",
+            "verificationMethod",
+            "ens_name"
+          ]
+        }
+      },
+      "required": [
+        "@context",
+        "type",
+        "issuer",
+        "issuanceDate",
+        "credentialSubject",
+        "id",
+        "crid",
+        "cridType",
+        "metadataJson",
+        "proof"
+      ]
+    }
+  ]
+}
