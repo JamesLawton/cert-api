@@ -198,7 +198,6 @@ async def createBloxbergCertificate(batch: Batch):
         raise HTTPException(status_code=404, detail="Certifying batch to the blockchain failed.")
     end2 = time.time()
     logger.info(end2 - start2)
-
     return jsonText
 
 

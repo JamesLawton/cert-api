@@ -76,6 +76,7 @@ async def issue(createToken: createToken, request: Request):
         #pr.print_stats(sort="tottime")
         #pr.dump_stats('profileAPI.pstat')
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=400, detail=f"Failed to issue certificate batch to the blockchain")
 
     # Retrieve file path of certified transaction
