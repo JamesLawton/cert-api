@@ -20,7 +20,12 @@ tags_metadata = [
     {
         "name": "pdf",
         "description": "Accepts as input the response from the createBloxbergCertificate endpoint, for example a research object JSON array."
+    },
+    {
+        "name": "research_object_v1",
+        "description": "Returns Context JSON schema for Version 1 of Research Object Certificate"
     }
+
 ]
 
 app = FastAPI(title="Research Object Certification", openapi_tags=tags_metadata)

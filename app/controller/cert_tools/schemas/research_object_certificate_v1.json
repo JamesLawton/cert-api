@@ -1,0 +1,36 @@
+{
+  "@context": {
+    "id": "@id",
+    "type": "@type",
+    "bl": "https://w3id.org/bloxberg#",
+    "schema": "http://schema.org/",
+    "sec": "https://w3id.org/security#",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+
+    "MerkleProof2019": "sec:MerkleProof2019",
+
+    "BloxbergCredential": "bl:BloxbergCredential",
+    "introductionUrl": { "@id": "bl:introductionUrl", "@type": "@id" },
+
+    "CryptographicKey": "sec:Key",
+    "Digest": "sec:Digest",
+    "cridType": "sec:digestAlgorithm",
+    "crid": "sec:digestValue",
+
+    "domain": "sec:domain",
+    "nonce": "sec:nonce",
+    "proofValue": "sec:proofValue",
+    "assertionMethod": {"@id": "sec:assertionMethod", "@type": "@id", "@container": "@set"},
+    "authentication": {"@id": "sec:authenticationMethod", "@type": "@id", "@container": "@set"},
+    "proofPurpose": {"@id": "sec:proofPurpose", "@type": "@vocab"},
+    "verificationMethod": {"@id": "sec:verificationMethod", "@type": "@id"},
+    "created": {"@id": "http://purl.org/dc/terms/created", "@type": "xsd:dateTime"},
+    "challenge": "sec:challenge",
+    "expires": {"@id": "sec:expiration", "@type": "xsd:dateTime"},
+
+
+    "name": {
+      "@id": "schema:name"
+    }
+  }
+}
