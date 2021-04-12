@@ -20,14 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b1ac61f1-92d2-42a3-9749-f0ab40feb902" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/app/testing/generatePDF_test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/testing/generate_pdf_1000.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/testing/valid_certificate_schema.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/cert_issuer_api.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/cert_issuer_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/cert_tools_api.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/certify-api.yml" beforeDir="false" afterPath="$PROJECT_DIR$/certify-api.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -61,15 +54,15 @@
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/app/controller/cert_issuer" />
-      <recent name="$PROJECT_DIR$/app" />
-    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/app/controller" />
       <recent name="$PROJECT_DIR$/app/controller/cert_tools" />
       <recent name="$PROJECT_DIR$/app/controller/cert_issuer" />
       <recent name="$PROJECT_DIR$/app/testing" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/app/controller/cert_issuer" />
+      <recent name="$PROJECT_DIR$/app" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
