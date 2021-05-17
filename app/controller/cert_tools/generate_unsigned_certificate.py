@@ -4,6 +4,7 @@ from fastapi import Depends, FastAPI, Request, HTTPException, status, Background
 from fastapi.responses import FileResponse, Response, JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.encoders import jsonable_encoder
+from fastapi_simple_security import api_key_security
 from cert_tools import instantiate_v3_alpha_certificate_batch, create_v3_alpha_certificate_template
 from pydantic import BaseModel, Field, Json
 from urllib.error import HTTPError
@@ -43,38 +44,37 @@ class jsonCertificate(BaseModel):
     class Config:
         schema_extra = {
             "example":
-
-                    {
-                        "@context": [
-                            "https://www.w3.org/2018/credentials/v1",
-                            "https://w3id.org/blockcerts/schema/3.0-alpha/context.json"
-                        ],
-                        "type": [
-                            "VerifiableCredential",
-                            "BlockcertsCredential"
-                        ],
-                        "issuer": "https://raw.githubusercontent.com/bloxberg-org/issuer_json/master/issuer.json",
-                        "issuanceDate": "2020-10-28T14:30:34.011731+00:00",
-                        "credentialSubject": {
-                            "id": "https://blockexplorer.bloxberg.org/address/0x69575606E8b8F0cAaA5A3BD1fc5D032024Bb85AF",
-                            "issuingOrg": {
-                                "id": "https://bloxberg.org"
-                            }
-                        },
-                        "id": "https://bloxberg.org",
-                        "crid": "0xfda3124d5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6",
-                        "cridType": "sha-256",
-                        "metadataJson": "{\"authors\": \"Albert Einstein\"}",
-                        "proof": {
-                            "type": "MerkleProof2019",
-                            "created": "2020-10-28T14:30:40.469960",
-                            "proofValue": "z2LuLBVSfogU8YhUevw7i7eo94141kAPwfYuY7XGbqmy6PJvWiEvy9Q5C9niJ6B4Cy5PeHo8rC5azvniXW75WxHhziZGRj6jK7G5i3X2EdyurnhSHwTAhjCEo6gE4oFBQUhb65ZcWmidNBVYqbvHCnmFaY7SKiUmmuELmC9dA3Z89X1b1QVquiC8yrqFdMeBptPP8tMk9StHKQfG1X2u4JzWSTmR4RVKnh4XAo8UitRiz8zeQSNZJuQ2kTg2PTMxnigap4US5vVL5UKESKUSB9kAvk1YpBfrzuEtEiVqFWWMk6V48MYkBwP86HnY4yh6LwM31J6c6NyNeUcVmUAjhMFenaFZXoWvkzj6nUmRVcLdRmARkWCAuWikVTbgri4Cw8p7cezHXvE9mmvuC9HYfB",
-                            "proofPurpose": "assertionMethod",
-                            "verificationMethod": "ecdsa-koblitz-pubkey:0xD748BF41264b906093460923169643f45BDbC32e",
-                            "ens_name": "mpdl.berg"
+                {
+                    "@context": [
+                        "https://www.w3.org/2018/credentials/v1",
+                        "https://w3id.org/bloxberg/schema/research_object_certificate_v1"
+                    ],
+                    "type": [
+                        "VerifiableCredential",
+                        "BloxbergCredential"
+                    ],
+                    "issuer": "https://raw.githubusercontent.com/bloxberg-org/issuer_json/master/issuer.json",
+                    "issuanceDate": "2021-04-08T14:16:42.721793+00:00",
+                    "credentialSubject": {
+                        "id": "https://blockexplorer.bloxberg.org/address/0x69575606E8b8F0cAaA5A3BD1fc5D032024Bb85AF",
+                        "issuingOrg": {
+                            "id": "https://bloxberg.org"
                         }
                     },
+                    "id": "https://bloxberg.org",
+                    "crid": "0x0e4ded5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6",
+                    "cridType": "sha2-256",
+                    "metadataJson": "{\"authors\": \"Albert Einstein\"}",
+                    "proof": {
+                        "type": "MerkleProof2019",
+                        "created": "2021-04-08T14:16:50.437593",
+                        "proofValue": "z7veGu1qoKR3AS5Aj7L346qXbWzqETUy5T16AYKdDfL3f9g4wsns2Fh7zK4QgCzD4NtcbPLseL1BDnWb3jqdGVR9WUVjzpqgVx1Dc5bUGwrkLXH31fwNuqW6iSXM3rcNA8XQKcHjKddyzxiBDT7QUY7yLW1ERwaQZmnXsxdWTpbunqWb1VHYMo6La7n1ztTkBCuWrfq4w6keqRccHDWu3Ltfn7maAXGWTE4M2j3zrjD52SBdFcGyTDb6rPutEKjSHRJ26gZ8GnNChHf9S57j88AXi1n51iSfZbZAJM1RbbKvTkpRuFVM6t",
+                        "proofPurpose": "assertionMethod",
+                        "verificationMethod": "ecdsa-koblitz-pubkey:0xD748BF41264b906093460923169643f45BDbC32e",
+                        "ens_name": "mpdl.berg"
+                    }
                 }
+            }
 
 class jsonCertificateBatch(BaseModel):
     __root__: Optional[List[jsonCertificate]]
@@ -110,7 +110,6 @@ class Batch(BaseModel):
 
 
 async def issueRequest(url, headers, payload):
-
     #Asynchronous
     async with httpx.AsyncClient() as session:  # use httpx
         response = await session.request(method='POST', url=url, headers=headers, data=payload, timeout=None)
@@ -122,13 +121,12 @@ async def issueRequest(url, headers, payload):
     # encodedResponse = response.text.encode('utf8')
     # jsonText = json.loads(encodedResponse)
 
-
     return jsonText
 
 
 
 ##Full Workflow
-@router.post("/createBloxbergCertificate", tags=['certificate'], response_model=List[jsonCertificate])
+@router.post("/createBloxbergCertificate", dependencies=[Depends(api_key_security)], tags=['certificate'], response_model=List[jsonCertificate])
 async def createBloxbergCertificate(batch: Batch):
 
     """
@@ -198,7 +196,6 @@ async def createBloxbergCertificate(batch: Batch):
         raise HTTPException(status_code=404, detail="Certifying batch to the blockchain failed.")
     end2 = time.time()
     logger.info(end2 - start2)
-
     return jsonText
 
 

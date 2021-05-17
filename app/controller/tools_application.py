@@ -5,7 +5,6 @@ from controller.errors.validation_error import validation_exception_handler
 from fastapi import FastAPI, HTTPException
 from starlette.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
-
 from controller.cert_tools.router import router as api_router
 
 logging.basicConfig(format="%(asctime)s %(message)s", datefmt="%m/%d/%Y %I:%M:%S %p")
@@ -20,7 +19,12 @@ tags_metadata = [
     {
         "name": "pdf",
         "description": "Accepts as input the response from the createBloxbergCertificate endpoint, for example a research object JSON array."
+    },
+    {
+        "name": "research_object_v1",
+        "description": "Returns Context JSON schema for Version 1 of Research Object Certificate"
     }
+
 ]
 
 app = FastAPI(title="Research Object Certification", openapi_tags=tags_metadata)

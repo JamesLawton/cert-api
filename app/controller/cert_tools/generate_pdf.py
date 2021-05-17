@@ -7,11 +7,10 @@ import json
 import uuid
 import io
 import os
-
+from fastapi_simple_security import api_key_security
 from pydantic import BaseModel, Field, Json
-
 from fastapi.responses import FileResponse
-from fastapi import APIRouter, BackgroundTasks, HTTPException
+from fastapi import Depends, APIRouter, BackgroundTasks, HTTPException
 
 router = APIRouter()
 
@@ -38,14 +37,14 @@ class jsonCertificate(BaseModel):
                 {
                     "@context": [
                         "https://www.w3.org/2018/credentials/v1",
-                        "https://w3id.org/blockcerts/schema/3.0-alpha/context.json"
+                        "https://w3id.org/bloxberg/schema/research_object_certificate_v1"
                     ],
                     "type": [
                         "VerifiableCredential",
-                        "BlockcertsCredential"
+                        "BloxbergCredential"
                     ],
                     "issuer": "https://raw.githubusercontent.com/bloxberg-org/issuer_json/master/issuer.json",
-                    "issuanceDate": "2020-10-28T14:30:34.011731+00:00",
+                    "issuanceDate": "2021-04-08T14:16:42.721793+00:00",
                     "credentialSubject": {
                         "id": "https://blockexplorer.bloxberg.org/address/0x69575606E8b8F0cAaA5A3BD1fc5D032024Bb85AF",
                         "issuingOrg": {
@@ -53,13 +52,13 @@ class jsonCertificate(BaseModel):
                         }
                     },
                     "id": "https://bloxberg.org",
-                    "crid": "0xfda3124d5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6",
-                    "cridType": "sha-256",
+                    "crid": "0x0e4ded5319861c8daac00d425c53a16bd180a7d01a340a0e00f7dede40d2c9f6",
+                    "cridType": "sha2-256",
                     "metadataJson": "{\"authors\": \"Albert Einstein\"}",
                     "proof": {
                         "type": "MerkleProof2019",
-                        "created": "2020-10-28T14:30:40.469960",
-                        "proofValue": "z2LuLBVSfogU8YhUevw7i7eo94141kAPwfYuY7XGbqmy6PJvWiEvy9Q5C9niJ6B4Cy5PeHo8rC5azvniXW75WxHhziZGRj6jK7G5i3X2EdyurnhSHwTAhjCEo6gE4oFBQUhb65ZcWmidNBVYqbvHCnmFaY7SKiUmmuELmC9dA3Z89X1b1QVquiC8yrqFdMeBptPP8tMk9StHKQfG1X2u4JzWSTmR4RVKnh4XAo8UitRiz8zeQSNZJuQ2kTg2PTMxnigap4US5vVL5UKESKUSB9kAvk1YpBfrzuEtEiVqFWWMk6V48MYkBwP86HnY4yh6LwM31J6c6NyNeUcVmUAjhMFenaFZXoWvkzj6nUmRVcLdRmARkWCAuWikVTbgri4Cw8p7cezHXvE9mmvuC9HYfB",
+                        "created": "2021-04-08T14:16:50.437593",
+                        "proofValue": "z7veGu1qoKR3AS5Aj7L346qXbWzqETUy5T16AYKdDfL3f9g4wsns2Fh7zK4QgCzD4NtcbPLseL1BDnWb3jqdGVR9WUVjzpqgVx1Dc5bUGwrkLXH31fwNuqW6iSXM3rcNA8XQKcHjKddyzxiBDT7QUY7yLW1ERwaQZmnXsxdWTpbunqWb1VHYMo6La7n1ztTkBCuWrfq4w6keqRccHDWu3Ltfn7maAXGWTE4M2j3zrjD52SBdFcGyTDb6rPutEKjSHRJ26gZ8GnNChHf9S57j88AXi1n51iSfZbZAJM1RbbKvTkpRuFVM6t",
                         "proofPurpose": "assertionMethod",
                         "verificationMethod": "ecdsa-koblitz-pubkey:0xD748BF41264b906093460923169643f45BDbC32e",
                         "ens_name": "mpdl.berg"
@@ -88,7 +87,7 @@ def zipfilesindir(dirName, zipFileName, filter=None):
         return
 
 
-@router.post("/generatePDF", tags=['pdf'])
+@router.post("/generatePDF", tags=['pdf'], dependencies=[Depends(api_key_security)])
 async def generatePDF(request: List[jsonCertificate], background_tasks: BackgroundTasks):
     """
     Accepts as input the response from the createBloxbergCertificate endpoint, for example a research object JSON array. Returns as response a zip archive with PDF files that correspond to the number of cryptographic identifiers provided. PDF files are embedded with the Research Object Certification which is used for verification.
